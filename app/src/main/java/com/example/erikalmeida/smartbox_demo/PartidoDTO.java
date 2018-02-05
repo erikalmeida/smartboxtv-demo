@@ -12,6 +12,8 @@ public class PartidoDTO {
     private String awayTeam;
     private String eventStatus;
     private String date;
+    private String versus;
+    private String score;
 
     public PartidoDTO() {
     }
@@ -62,5 +64,21 @@ public class PartidoDTO {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getVersus() {
+        return versus;
+    }
+
+    public void setVersus(String versus) {
+        this.versus = versus;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
     }
 }

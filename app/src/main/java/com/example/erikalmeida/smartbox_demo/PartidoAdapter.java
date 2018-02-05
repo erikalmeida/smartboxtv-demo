@@ -47,25 +47,42 @@ public class PartidoAdapter extends BaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get view for row item
         View rowView = mInflater.inflate(R.layout.list_item_partido, parent, false);
+        View rowView2 = mInflater.inflate(R.layout.list_item_partido_2, parent, false);
 
-        TextView teams = rowView.findViewById(R.id.partido_list_vs);
-        TextView status = rowView.findViewById(R.id.partido_list_estatus);
-        TextView date = rowView.findViewById(R.id.partido_date);
-        TextView score = rowView.findViewById(R.id.partido_marcador);
+        TextView teams;
+        TextView status;
+        TextView date;
+        TextView score;
 
         PartidoDTO p = (PartidoDTO) getItem(position);
-        if (position % 2 == 1) {
-            rowView.setBackgroundColor(Color.LTGRAY);
-        } else {
-            rowView.setBackgroundColor(Color.GRAY);
-        }
-        String versus = p.getHomeTeam() + " vs " + p.getAwayTeam();
-        teams.setText(versus);
-        status.setText(p.getEventStatus());
-        date.setText(p.getDate());
         String marcador = p.getHomeScore() + " - " + p.getAwayScore();
-        score.setText(marcador);
 
-        return rowView;
+        if (position % 2 != 0) {
+            teams = rowView.findViewById(R.id.partido_list_vs);
+            status = rowView.findViewById(R.id.partido_list_estatus);
+            date = rowView.findViewById(R.id.partido_date);
+            score = rowView.findViewById(R.id.partido_marcador);
+
+            teams.setText(p.getVersus());
+            status.setText(p.getEventStatus());
+            date.setText(p.getDate());
+            score.setText(marcador);
+
+            rowView.setBackgroundColor(Color.LTGRAY);
+            return rowView;
+        } else {
+            teams = rowView2.findViewById(R.id.partido_list_vs);
+            status = rowView2.findViewById(R.id.partido_list_estatus);
+            date = rowView2.findViewById(R.id.partido_date);
+            score = rowView2.findViewById(R.id.partido_marcador);
+
+            teams.setText(p.getVersus());
+            status.setText(p.getEventStatus());
+            date.setText(p.getDate());
+            score.setText(marcador);
+
+            rowView2.setBackgroundColor(Color.GRAY);
+            return rowView2;
+        }
     }
 }

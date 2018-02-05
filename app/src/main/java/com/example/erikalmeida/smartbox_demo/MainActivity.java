@@ -1,9 +1,13 @@
 package com.example.erikalmeida.smartbox_demo;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
@@ -27,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //new LoginServicio().execute();
         LoginServicio ls = new LoginServicio();
         new LoginServicio().execute();
     }
@@ -35,10 +38,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void showListPartidos() {
+        final List<PartidoDTO> listItems = new ArrayList<>();
         if(partidos!=null) {
-            mListView = (ListView) findViewById(R.id.partidos_list_view);
-            List<PartidoDTO> listItems = new ArrayList<>();
-
+            mListView = findViewById(R.id.partidos_list_view);
             for(int i = 0; i < partidos.size(); i++){
                 PartidoDTO partidoDTO = new PartidoDTO();
                 LinkedHashMap<String, Object> p = (LinkedHashMap<String, Object>) partidos.get(i);
@@ -47,13 +49,16 @@ public class MainActivity extends AppCompatActivity {
                 LinkedHashMap<String,Object> awayTeam = (LinkedHashMap<String, Object>) p.get("awayTeam");
                 LinkedHashMap<String,Object> eventStatus = (LinkedHashMap<String, Object>) p.get("eventStatus");
                 LinkedHashMap<String,Object> eventStatusName = (LinkedHashMap<String, Object>) eventStatus.get("name");
+                LinkedHashMap<String,Object> matchDay = (LinkedHashMap<String, Object>) p.get("matchDay");
                 partidoDTO.setHomeTeam((String) homeTeam.get("name"));
                 partidoDTO.setAwayTeam((String) awayTeam.get("name"));
                 partidoDTO.setHomeScore(p.get("homeScore").toString());
                 partidoDTO.setAwayScore(p.get("awayScore").toString());
                 partidoDTO.setEventStatus((String) eventStatusName.get("es"));
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-                String dateInString = p.get("_createDate").toString();
+                String dateInString = matchDay.get("start").toString();
+                partidoDTO.setVersus(partidoDTO.getHomeTeam() + " vs " + partidoDTO.getAwayTeam());
+                partidoDTO.setScore(partidoDTO.getHomeScore() + " - " + partidoDTO.getAwayScore());
 
                 Date date = null;
                 try {
@@ -69,10 +74,26 @@ public class MainActivity extends AppCompatActivity {
             PartidoAdapter adapter = new PartidoAdapter(this, listItems);
             mListView.setAdapter(adapter);
         }
+
+        final Context context = this;
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                PartidoDTO selectedPartido = listItems.get(position);
+                Intent detailIntent = new Intent(context, ActivityPartidoDetail.class);
+
+                detailIntent.putExtra("estatus", selectedPartido.getEventStatus());
+                detailIntent.putExtra("versus", selectedPartido.getVersus());
+                detailIntent.putExtra("score", selectedPartido.getScore());
+
+                startActivity(detailIntent);
+            }
+
+        });
+
     }
-
-
-
 
     @Override
     protected void onStart() {
@@ -114,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
                         " \"version\": \"1.0.0\"" +
                         " }" +
                         "}";
-
                 HttpEntity<String> httpEntity = new HttpEntity<String>(reqjson,headers);
                 String response = restTemplate.postForObject(url,httpEntity, String.class);
                 JSONObject responseBody = new JSONObject(response);
